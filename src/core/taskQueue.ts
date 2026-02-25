@@ -11,7 +11,7 @@ export async function startTaskQueue() {
 
       if (!task) {
         console.log("⏳ No task, waiting...");
-        await delay(5000);
+        await delay(25000);
         continue;
       }
 
