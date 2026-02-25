@@ -1,0 +1,17 @@
+node_modules/
+.env
+
+# Playwright / Chrome
+profiles/
+playwright/.cache/
+**/Cache/
+**/Session*
+**/Service Worker/
+
+# Build
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db

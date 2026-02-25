@@ -1,0 +1,25 @@
+import { getNextTask } from "../api/crawlTask.api";
+import { processTask } from "./processTask";
+import { delay } from "../utils/delay";
+
+export async function startTaskQueue() {
+  console.log("📡 Task queue started");
+
+  while (true) {
+    try {
+      const task = await getNextTask();
+
+      if (!task) {
+        console.log("⏳ No task, waiting...");
+        await delay(5000);
+        continue;
+      }
+
+      console.log(`📥 Got task ${task.id}`);
+      await processTask(task);
+    } catch (err: any) {
+      console.error("❌ Queue error:", err.message);
+      await delay(5000);
+    }
+  }
+}

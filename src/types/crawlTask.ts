@@ -1,0 +1,17 @@
+import { Place } from "./place";
+
+export type CrawlTask = {
+  id: string;
+  job_id: string;
+  keyword: string;
+  address: string;
+  region: string;
+  result_limit: number;
+  delay_seconds: number;
+  deep_scan: boolean;
+  deep_scan_website: boolean;
+  status: "pending" | "processing" | "success" | "error";
+  result?: Place[];
+  error_message?: string;
+  created_at: string;
+};
