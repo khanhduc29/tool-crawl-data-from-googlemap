@@ -9,7 +9,6 @@ playwright/.cache/
 **/Service Worker/
 
 # Build
-dist/
 build/
 
 # OS
