@@ -9,14 +9,14 @@ import { deepScanPlace } from "./deepScanPlace";
 import { delay } from "../utils/delay";
 
 export async function processTask(task: CrawlTask) {
-  console.log(`🚀 Start task ${task.id}`);
+  console.log(`🚀 Start task ${task._id}`);
   console.log(
     `🧾 keyword="${task.keyword}", address="${task.address}"`
   );
 
   try {
     /**
-     * 1️⃣ Resolve lat/lng (CHƯA update gì)
+     * 1️⃣ Resolve lat/lng (KHÔNG update gì)
      */
     const ctxResolve = await createBrowser();
     const pageResolve = await ctxResolve.newPage();
@@ -29,14 +29,8 @@ export async function processTask(task: CrawlTask) {
     await ctxResolve.close();
 
     /**
-     * 2️⃣ TỚI ĐÂY MỚI COI LÀ TOOL BẮT ĐẦU CHẠY
-     */
-    await updateTask(task.id, {
-      status: "processing",
-    });
-
-    /**
-     * 3️⃣ Crawl Google Maps (CHỈ TRUYỀN lat, lng)
+     * 2️⃣ Crawl Google Maps
+     * (task đã ở trạng thái processing từ BE)
      */
     const context = await createBrowser(lat, lng);
     const page = await context.newPage();
@@ -49,7 +43,7 @@ export async function processTask(task: CrawlTask) {
     );
 
     /**
-     * 4️⃣ deep_scan_website → crawl website / social
+     * 3️⃣ deep_scan_website → crawl website / social
      */
     if (task.deep_scan_website) {
       console.log("🌐 Deep scan website ENABLED");
@@ -65,7 +59,7 @@ export async function processTask(task: CrawlTask) {
             webPage,
             place.website
           );
-        } catch (err) {
+        } catch {
           console.log(
             `⚠️ Website crawl failed: ${place.website}`
           );
@@ -76,7 +70,7 @@ export async function processTask(task: CrawlTask) {
     }
 
     /**
-     * 5️⃣ deep_scan → crawl chi tiết Google Maps
+     * 4️⃣ deep_scan → crawl chi tiết Google Maps
      */
     if (task.deep_scan) {
       console.log("🧠 Deep scan place detail ENABLED");
@@ -102,20 +96,20 @@ export async function processTask(task: CrawlTask) {
     await context.close();
 
     /**
-     * 6️⃣ UPDATE TASK → success + result[]
+     * 5️⃣ UPDATE TASK → success + result[]
      */
-    await updateTask(task.id, {
+    await updateTask(task._id, {
       status: "success",
       result: results,
     });
 
     console.log(
-      `✅ Task ${task.id} success | result=${results.length}`
+      `✅ Task ${task._id} success | result=${results.length}`
     );
   } catch (err: any) {
-    console.error(`❌ Task ${task.id} error`, err.message);
+    console.error(`❌ Task ${task._id} error`, err.message);
 
-    await updateTask(task.id, {
+    await updateTask(task._id, {
       status: "error",
       error_message: err.message,
     });

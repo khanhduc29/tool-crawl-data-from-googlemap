@@ -15,7 +15,7 @@ export async function startTaskQueue() {
         continue;
       }
 
-      console.log(`📥 Got task ${task.id}`);
+      console.log(`📥 Got task ${task._id}`);
       await processTask(task);
     } catch (err: any) {
       console.error("❌ Queue error:", err.message);
