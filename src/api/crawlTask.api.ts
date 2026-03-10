@@ -45,7 +45,7 @@
 import axios from "axios";
 import { CrawlTask } from "../types/crawlTask";
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "https://be-tool-crawldata.onrender.com/api";
 
 /**
  * Lấy 1 Google Map task pending từ BE mới
