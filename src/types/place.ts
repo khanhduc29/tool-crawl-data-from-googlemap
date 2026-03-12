@@ -18,4 +18,5 @@ export interface Place {
 
   // deep_scan_website
   socials?: SocialLinks;
+  
 }
