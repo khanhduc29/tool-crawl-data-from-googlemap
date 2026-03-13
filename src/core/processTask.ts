@@ -149,6 +149,7 @@ import { crawlWebsiteContact } from "./crawlWebsiteContact";
 import { deepScanPlace } from "./deepScanPlace";
 import { delay } from "../utils/delay";
 import fs from "fs";
+import { updateTask } from "../api/crawlTask.api";
 
 export async function processTask(task: CrawlTask) {
 
@@ -303,25 +304,23 @@ export async function processTask(task: CrawlTask) {
     /**
      * 6️⃣ Save result to JSON (for testing)
      */
-    const filePath = `./test-result-${task._id}.json`;
+    // const filePath = `./test-result-${task._id}.json`;
 
-    fs.writeFileSync(
-      filePath,
-      JSON.stringify(results, null, 2),
-      "utf-8"
-    );
+    // fs.writeFileSync(
+    //   filePath,
+    //   JSON.stringify(results, null, 2),
+    //   "utf-8"
+    // );
 
-    console.log(`💾 Saved result to ${filePath}`);
+    // console.log(`💾 Saved result to ${filePath}`);
 
     /**
      * 7️⃣ Update task (disabled for testing)
      */
-    /*
     await updateTask(task._id, {
       status: "success",
       result: results,
     });
-    */
 
     console.log(
       `✅ Task ${task._id} success | result=${results.length}`
@@ -334,12 +333,10 @@ export async function processTask(task: CrawlTask) {
     /**
      * Update task (disabled for testing)
      */
-    /*
     await updateTask(task._id, {
       status: "error",
       error_message: err.message,
     });
-    */
 
   }
 

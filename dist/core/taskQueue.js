@@ -14,7 +14,7 @@ async function startTaskQueue() {
                 await (0, delay_1.delay)(25000);
                 continue;
             }
-            console.log(`📥 Got task ${task.id}`);
+            console.log(`📥 Got task ${task._id}`);
             await (0, processTask_1.processTask)(task);
         }
         catch (err) {

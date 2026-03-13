@@ -28,43 +28,17 @@ function normalizeUrl(url) {
         return null;
     return url.trim();
 }
-async function crawlWebsiteContact(page, website) {
-    console.log(`🌐 Crawl website: ${website}`);
+async function extractSocial(page) {
     const socials = {};
-    await page.goto(website, {
-        waitUntil: "domcontentloaded",
-        timeout: 30000,
-    });
-    // 🔥 Scroll để footer render
-    await page.evaluate(async () => {
-        await new Promise((resolve) => {
-            let total = 0;
-            const step = 400;
-            const timer = setInterval(() => {
-                window.scrollBy(0, step);
-                total += step;
-                if (total >= document.body.scrollHeight) {
-                    clearInterval(timer);
-                    resolve();
-                }
-            }, 200);
-        });
-    });
-    await page.waitForTimeout(1500);
     /**
-     * =====================
-     * 1️⃣ LẤY EMAIL TỪ TEXT
-     * =====================
+     * EMAIL
      */
     const pageText = await page.evaluate(() => document.body.innerText || "");
     const emails = Array.from(new Set(pageText.match(EMAIL_REGEX) || []));
-    if (emails.length > 0) {
+    if (emails.length > 0)
         socials.emails = emails;
-    }
     /**
-     * =====================
-     * 2️⃣ LẤY SOCIAL LINKS
-     * =====================
+     * SOCIAL LINKS
      */
     const footerLinks = await page.$$eval("footer a[href]", (els) => els.map((el) => el.getAttribute("href") || ""));
     const allLinks = footerLinks.length > 0
@@ -95,5 +69,67 @@ async function crawlWebsiteContact(page, website) {
         if (!socials.telegram && SOCIAL_PATTERNS.telegram.test(url))
             socials.telegram = url;
     }
+    return socials;
+}
+async function crawlWebsiteContact(page, website) {
+    console.log(`🌐 Crawl website: ${website}`);
+    let socials = {};
+    /**
+     * ======================
+     * 1️⃣ TRY CONTACT PAGE
+     * ======================
+     */
+    const contactUrls = [
+        `${website}/contact`,
+        `${website}/contact-us`,
+        `${website}/lien-he`,
+    ];
+    for (const url of contactUrls) {
+        try {
+            console.log(`🔎 Try contact page: ${url}`);
+            const res = await page.goto(url, {
+                waitUntil: "domcontentloaded",
+                timeout: 15000,
+            });
+            if (!res || res.status() >= 400)
+                continue;
+            await page.waitForTimeout(1000);
+            socials = await extractSocial(page);
+            if (Object.keys(socials).length > 0) {
+                console.log("✅ Found socials in contact page");
+                return socials;
+            }
+        }
+        catch {
+            console.log(`⚠️ Contact page failed: ${url}`);
+        }
+    }
+    /**
+     * ======================
+     * 2️⃣ FALLBACK HOMEPAGE
+     * ======================
+     */
+    console.log("🔁 Fallback crawl homepage footer");
+    await page.goto(website, {
+        waitUntil: "domcontentloaded",
+        timeout: 30000,
+    });
+    // scroll footer
+    await page.evaluate(async () => {
+        await new Promise((resolve) => {
+            let total = 0;
+            const step = 400;
+            const timer = setInterval(() => {
+                window.scrollBy(0, step);
+                total += step;
+                if (total >= document.body.scrollHeight) {
+                    clearInterval(timer);
+                    resolve();
+                }
+            }, 200);
+        });
+    });
+    await page.waitForTimeout(1500);
+    socials = await extractSocial(page);
     return socials;
 }
